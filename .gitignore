@@ -1,0 +1,10 @@
+.project
+.classes
+.settings/
+target/
+bin/
+.idea/
+*.iml
+*~
+*.bak
+
