@@ -1,4 +1,4 @@
-package de.fisp.eetest.dao;
+package de.fisp.eetest.test.integration.dao;
 
 import de.fisp.eetest.entities.Person;
 import de.fisp.eetest.test.util.deployments.PersonDeployment;

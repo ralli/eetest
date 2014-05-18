@@ -1,4 +1,4 @@
-package de.fisp.eetest.exceptionmappers;
+package de.fisp.eetest.test.unit.exceptionmappers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

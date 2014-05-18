@@ -1,12 +1,11 @@
-package de.fisp.eetest.service;
+package de.fisp.eetest.test.unit.service;
 
-import de.fisp.eetest.dao.PersonDao;
+import de.fisp.eetest.test.integration.dao.PersonDao;
 import de.fisp.eetest.dto.person.CreatePersonRequest;
 import de.fisp.eetest.entities.Person;
 import de.fisp.eetest.exceptions.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 import javax.validation.*;
 import java.util.HashSet;

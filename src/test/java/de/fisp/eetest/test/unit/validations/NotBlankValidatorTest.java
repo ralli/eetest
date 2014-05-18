@@ -1,4 +1,4 @@
-package de.fisp.eetest.validations;
+package de.fisp.eetest.test.unit.validations;
 
 import org.junit.Test;
 
