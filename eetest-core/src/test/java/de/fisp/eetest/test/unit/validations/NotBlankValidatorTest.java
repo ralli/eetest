@@ -1,5 +1,6 @@
 package de.fisp.eetest.test.unit.validations;
 
+import de.fisp.eetest.validations.NotBlankValidator;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

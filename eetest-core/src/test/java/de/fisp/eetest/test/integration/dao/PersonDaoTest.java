@@ -1,5 +1,6 @@
 package de.fisp.eetest.test.integration.dao;
 
+import de.fisp.eetest.dao.PersonDao;
 import de.fisp.eetest.entities.Person;
 import de.fisp.eetest.test.util.deployments.PersonDeployment;
 import org.jboss.arquillian.container.test.api.Deployment;

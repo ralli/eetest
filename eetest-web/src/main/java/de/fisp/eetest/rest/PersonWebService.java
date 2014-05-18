@@ -1,12 +1,12 @@
-package de.fisp.eetest.test.unit.rest;
+package de.fisp.eetest.rest;
 
-import de.fisp.eetest.test.integration.dao.PersonDao;
+import de.fisp.eetest.service.PersonService;
+import de.fisp.eetest.dao.PersonDao;
 import de.fisp.eetest.dto.person.CreatePersonRequest;
 import de.fisp.eetest.dto.person.CreatePersonResponse;
 import de.fisp.eetest.dto.person.FindPersonsResponse;
 import de.fisp.eetest.entities.Person;
 import de.fisp.eetest.exceptions.NotFoundException;
-import de.fisp.eetest.test.unit.service.PersonService;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;

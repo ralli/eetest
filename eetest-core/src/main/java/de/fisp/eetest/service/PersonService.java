@@ -1,6 +1,6 @@
-package de.fisp.eetest.test.unit.service;
+package de.fisp.eetest.service;
 
-import de.fisp.eetest.test.integration.dao.PersonDao;
+import de.fisp.eetest.dao.PersonDao;
 import de.fisp.eetest.dto.person.CreatePersonRequest;
 import de.fisp.eetest.entities.Person;
 import de.fisp.eetest.exceptions.NotFoundException;

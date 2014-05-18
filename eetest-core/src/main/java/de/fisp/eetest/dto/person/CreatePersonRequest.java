@@ -1,6 +1,6 @@
 package de.fisp.eetest.dto.person;
 
-import de.fisp.eetest.test.unit.validations.NotBlank;
+import de.fisp.eetest.validations.NotBlank;
 
 import javax.validation.constraints.Size;
 

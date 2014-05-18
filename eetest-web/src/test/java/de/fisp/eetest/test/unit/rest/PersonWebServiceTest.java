@@ -1,14 +1,18 @@
 package de.fisp.eetest.test.unit.rest;
 
-import de.fisp.eetest.test.integration.dao.PersonDao;
+import de.fisp.eetest.rest.PersonWebService;
+import de.fisp.eetest.dao.PersonDao;
 import de.fisp.eetest.dto.person.CreatePersonRequest;
 import de.fisp.eetest.dto.person.CreatePersonResponse;
 import de.fisp.eetest.dto.person.FindPersonsResponse;
 import de.fisp.eetest.entities.Person;
-import de.fisp.eetest.test.unit.service.PersonService;
+import de.fisp.eetest.service.PersonService;
 import de.fisp.eetest.test.util.TestRuntimeDelegate;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +30,7 @@ import java.util.Set;
 
 import static de.fisp.eetest.test.util.TestHelper.setAttribute;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.*;
 
 public class PersonWebServiceTest {
@@ -52,8 +57,8 @@ public class PersonWebServiceTest {
   public void findAll_should_return_FindPersonsResponse() {
     when(personDao.findAll()).thenReturn(new ArrayList<Person>());
     FindPersonsResponse result = personWebService.findAll();
-    assertNotNull(result);
-    assertTrue("Soll leer sein", result.getPersons().isEmpty());
+    Assert.assertNotNull(result);
+    Assert.assertTrue("Soll leer sein", result.getPersons().isEmpty());
   }
 
   @Test
@@ -61,7 +66,7 @@ public class PersonWebServiceTest {
     when(personDao.findById(anyLong())).thenReturn(null);
     try {
       personWebService.findById(10L);
-      fail("Should throw a NotFoundException");
+      Assert.fail("Should throw a NotFoundException");
     }
     catch(WebApplicationException ex) {
       assertEquals(NOT_FOUND, ex.getResponse().getStatus());
@@ -78,18 +83,18 @@ public class PersonWebServiceTest {
   @Test
   public void create_when_successful_should_return_OK() {
     final long id = 10L;
-    when(personService.create((CreatePersonRequest) any())).thenReturn(id);
+    when(personService.create((CreatePersonRequest) Matchers.any())).thenReturn(id);
     CreatePersonRequest request = new CreatePersonRequest();
     Response response = personWebService.create(request);
     assertEquals(OK, response.getStatus());
-    assertTrue("Must be a CreatePersonResponse", response.getEntity() instanceof CreatePersonResponse);
+    Assert.assertTrue("Must be a CreatePersonResponse", response.getEntity() instanceof CreatePersonResponse);
     assertEquals("Must contain the Persons ID", id, ((CreatePersonResponse) response.getEntity()).getId());
   }
 
   @Test
   public void create_when_invalid_should_return_a_BAD_REQUEST() {
     String message = "Test validation failed";
-    when(personService.create((CreatePersonRequest) any())).thenThrow(new ValidationException(message));
+    when(personService.create((CreatePersonRequest) Matchers.any())).thenThrow(new ValidationException(message));
     CreatePersonRequest request = new CreatePersonRequest();
     Response response = personWebService.create(request);
 
@@ -105,7 +110,7 @@ public class PersonWebServiceTest {
     ConstraintViolation<Person> violation = createConstraintViolation(field, message);
     violations.add(violation);
 
-    when(personService.create((CreatePersonRequest) any()))
+    when(personService.create((CreatePersonRequest) Matchers.any()))
             .thenThrow(new ConstraintViolationException(message, violations));
 
     CreatePersonRequest request = new CreatePersonRequest();
@@ -124,9 +129,9 @@ public class PersonWebServiceTest {
   @Test
   public void update_when_invalid_should_return_a_BAD_REQUEST() {
     String message = "Test validation failed";
-    doThrow(new ValidationException(message))
+    Mockito.doThrow(new ValidationException(message))
             .when(personService)
-            .update(anyLong(), (CreatePersonRequest) any());
+            .update(anyLong(), (CreatePersonRequest) Matchers.any());
     CreatePersonRequest request = new CreatePersonRequest();
     Response response = personWebService.update(0L, request);
 
@@ -143,9 +148,9 @@ public class PersonWebServiceTest {
     ConstraintViolation<Person> violation = createConstraintViolation(field, message);
     violations.add(violation);
 
-    doThrow(new ConstraintViolationException(message, violations))
+    Mockito.doThrow(new ConstraintViolationException(message, violations))
             .when(personService)
-            .update(anyLong(), (CreatePersonRequest) any());
+            .update(anyLong(), (CreatePersonRequest) Matchers.any());
 
     CreatePersonRequest request = new CreatePersonRequest();
     Response response = personWebService.update(0L, request);
@@ -155,7 +160,7 @@ public class PersonWebServiceTest {
 
   private void assertBadRequestResponse(String message, String field, Response response) {
     assertEquals(BAD_REQUEST, response.getStatus());
-    assertTrue("Must be a Map", response.getEntity() instanceof Map<?, ?>);
+    Assert.assertTrue("Must be a Map", response.getEntity() instanceof Map<?, ?>);
     assertEquals("Contain the validation message for the field",
             message,
             getMessageFromResponse(field, response));
@@ -176,6 +181,7 @@ public class PersonWebServiceTest {
 
 
   private <T> ConstraintViolation<T> createConstraintViolation(String field, String message) {
+    @SuppressWarnings("unchecked")
     ConstraintViolation<T> violation = mock(ConstraintViolation.class);
     Path path = mock(Path.class);
     when(path.toString()).thenReturn(field);

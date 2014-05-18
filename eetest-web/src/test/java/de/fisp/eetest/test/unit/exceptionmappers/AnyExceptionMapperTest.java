@@ -1,5 +1,6 @@
 package de.fisp.eetest.test.unit.exceptionmappers;
 
+import de.fisp.eetest.exceptionmappers.AnyExceptionMapper;
 import de.fisp.eetest.test.util.TestRuntimeDelegate;
 import org.junit.Before;
 import org.junit.Test;

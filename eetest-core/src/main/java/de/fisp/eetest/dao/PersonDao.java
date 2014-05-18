@@ -1,10 +1,11 @@
-package de.fisp.eetest.test.integration.dao;
+package de.fisp.eetest.dao;
 
 import de.fisp.eetest.entities.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.TransactionAttribute;
+import javax.enterprise.inject.Default;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,6 +13,7 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Named
+@Default
 public class PersonDao {
   @PersistenceContext
   private EntityManager em;

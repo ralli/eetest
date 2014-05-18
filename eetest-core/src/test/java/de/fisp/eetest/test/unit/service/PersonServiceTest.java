@@ -1,6 +1,7 @@
 package de.fisp.eetest.test.unit.service;
 
-import de.fisp.eetest.test.integration.dao.PersonDao;
+import de.fisp.eetest.service.PersonService;
+import de.fisp.eetest.dao.PersonDao;
 import de.fisp.eetest.dto.person.CreatePersonRequest;
 import de.fisp.eetest.entities.Person;
 import de.fisp.eetest.exceptions.NotFoundException;
@@ -114,6 +115,7 @@ public class PersonServiceTest {
 
 
   private <T> ConstraintViolation<T> createConstraintViolation(String field, String message) {
+    @SuppressWarnings("unchecked")
     ConstraintViolation<T> violation = mock(ConstraintViolation.class);
     Path path = mock(Path.class);
     when(path.toString()).thenReturn(field);

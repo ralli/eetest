@@ -1,10 +1,10 @@
 package de.fisp.eetest.test.util.deployments;
 
-import de.fisp.eetest.test.integration.dao.PersonDao;
+import de.fisp.eetest.dao.PersonDao;
 import de.fisp.eetest.dto.person.CreatePersonRequest;
 import de.fisp.eetest.entities.Person;
 import de.fisp.eetest.exceptions.NotFoundException;
-import de.fisp.eetest.test.unit.validations.NotBlankValidator;
+import de.fisp.eetest.validations.NotBlankValidator;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
