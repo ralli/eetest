@@ -4,16 +4,14 @@ import de.fisp.eetest.entities.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
-import javax.enterprise.inject.Default;
-import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
-@Named
-@Default
+@Stateless
 public class PersonDao {
   @PersistenceContext
   private EntityManager em;
@@ -64,6 +62,11 @@ public class PersonDao {
     em.merge(person);
   }
 
+  /**
+   * Löscht eine Person.
+   * @param id Der Primärschlüssel der Person
+   * @return 1, wenn die Person nicht gelöscht wurde, 0 sonst.
+   */
   @TransactionAttribute
   public int deleteById(long id) {
     Person p = findById(id);
@@ -72,6 +75,4 @@ public class PersonDao {
     em.remove(p);
     return 1;
   }
-
-
 }

@@ -1,14 +1,18 @@
 package de.fisp.eetest.test.unit.service;
 
-import de.fisp.eetest.service.PersonService;
 import de.fisp.eetest.dao.PersonDao;
 import de.fisp.eetest.dto.person.CreatePersonRequest;
 import de.fisp.eetest.entities.Person;
+import de.fisp.eetest.exceptions.BusinessConstraintViolationException;
+import de.fisp.eetest.exceptions.BusinessValidationException;
 import de.fisp.eetest.exceptions.NotFoundException;
+import de.fisp.eetest.service.PersonService;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.validation.*;
+import javax.validation.ConstraintViolation;
+import javax.validation.Path;
+import javax.validation.Validator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,11 +48,11 @@ public class PersonServiceTest {
   public void create_when_invalid_should_throw_a_ConstraintValidationException() {
     Set<ConstraintViolation<?>> constraintViolations = new HashSet<>();
     constraintViolations.add(createConstraintViolation("firstName", "Test validation message"));
-    when(validator.validate(any(Person.class))).thenThrow(new ConstraintViolationException(constraintViolations));
+    when(validator.validate(any(Person.class))).thenThrow(new BusinessConstraintViolationException(constraintViolations));
     try {
       personService.create(new CreatePersonRequest());
-      fail("should throw a ConstraintValidationException");
-    } catch (ConstraintViolationException ex) {
+      fail("should throw a BusinessConstraintViolationException");
+    } catch (BusinessConstraintViolationException ex) {
       // alles ok
     }
   }
@@ -59,8 +63,8 @@ public class PersonServiceTest {
       CreatePersonRequest request = new CreatePersonRequest();
       request.setNachname("Hasexxx");
       personService.create(request);
-      fail("should throw a ValidationException");
-    } catch (ValidationException ex) {
+      fail("should throw a BusinessValidationException");
+    } catch (BusinessValidationException ex) {
       // alles ok
     }
   }
@@ -92,11 +96,11 @@ public class PersonServiceTest {
   public void update_when_validation_fails_should_throw_a_ConstraintViolationException() {
     Set<ConstraintViolation<?>> constraintViolations = new HashSet<>();
     constraintViolations.add(createConstraintViolation("firstName", "Test validation message"));
-    when(validator.validate(any(Person.class))).thenThrow(new ConstraintViolationException(constraintViolations));
+    when(validator.validate(any(Person.class))).thenThrow(new BusinessConstraintViolationException(constraintViolations));
     try {
       personService.update(0L, new CreatePersonRequest());
-      fail("should throw a ConstraintValidationException");
-    } catch (ConstraintViolationException ex) {
+      fail("should throw a BusinessConstraintViolationException");
+    } catch (BusinessConstraintViolationException ex) {
       // alles ok
     }
   }
@@ -107,8 +111,8 @@ public class PersonServiceTest {
       CreatePersonRequest request = new CreatePersonRequest();
       request.setNachname("Hasexxx");
       personService.update(0L, request);
-      fail("should throw a ValidationException");
-    } catch (ValidationException ex) {
+      fail("should throw a BusinessValidationException");
+    } catch (BusinessValidationException ex) {
       // alles ok
     }
   }

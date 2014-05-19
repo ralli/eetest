@@ -8,10 +8,10 @@ import org.junit.Test;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.RuntimeDelegate;
-
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class AnyExceptionMapperTest {
   private AnyExceptionMapper anyExceptionMapper;

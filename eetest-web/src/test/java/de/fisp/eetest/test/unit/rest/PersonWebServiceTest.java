@@ -1,11 +1,14 @@
 package de.fisp.eetest.test.unit.rest;
 
-import de.fisp.eetest.rest.PersonWebService;
 import de.fisp.eetest.dao.PersonDao;
 import de.fisp.eetest.dto.person.CreatePersonRequest;
 import de.fisp.eetest.dto.person.CreatePersonResponse;
 import de.fisp.eetest.dto.person.FindPersonsResponse;
 import de.fisp.eetest.entities.Person;
+import de.fisp.eetest.exceptions.BusinessConstraintViolationException;
+import de.fisp.eetest.exceptions.BusinessValidationException;
+import de.fisp.eetest.exceptions.NotFoundException;
+import de.fisp.eetest.rest.PersonWebService;
 import de.fisp.eetest.service.PersonService;
 import de.fisp.eetest.test.util.TestRuntimeDelegate;
 import org.junit.Assert;
@@ -17,10 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
-import javax.validation.ValidationException;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.RuntimeDelegate;
 import java.util.ArrayList;
@@ -29,9 +29,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static de.fisp.eetest.test.util.TestHelper.setAttribute;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PersonWebServiceTest {
   private static final Logger logger = LoggerFactory.getLogger(PersonWebService.class);
@@ -62,14 +63,14 @@ public class PersonWebServiceTest {
   }
 
   @Test
-  public void findById_should_throw_a_WebApplicationException_if_person_not_found() {
+  public void findById_should_throw_a_NotFoundException_if_person_not_found() {
     when(personDao.findById(anyLong())).thenReturn(null);
     try {
       personWebService.findById(10L);
       Assert.fail("Should throw a NotFoundException");
     }
-    catch(WebApplicationException ex) {
-      assertEquals(NOT_FOUND, ex.getResponse().getStatus());
+    catch(NotFoundException ex) {
+      // Ok
     }
   }
 
@@ -94,7 +95,7 @@ public class PersonWebServiceTest {
   @Test
   public void create_when_invalid_should_return_a_BAD_REQUEST() {
     String message = "Test validation failed";
-    when(personService.create((CreatePersonRequest) Matchers.any())).thenThrow(new ValidationException(message));
+    when(personService.create((CreatePersonRequest) Matchers.any())).thenThrow(new BusinessValidationException(message));
     CreatePersonRequest request = new CreatePersonRequest();
     Response response = personWebService.create(request);
 
@@ -111,7 +112,7 @@ public class PersonWebServiceTest {
     violations.add(violation);
 
     when(personService.create((CreatePersonRequest) Matchers.any()))
-            .thenThrow(new ConstraintViolationException(message, violations));
+            .thenThrow(new BusinessConstraintViolationException(message, violations));
 
     CreatePersonRequest request = new CreatePersonRequest();
     Response response = personWebService.create(request);
@@ -129,7 +130,7 @@ public class PersonWebServiceTest {
   @Test
   public void update_when_invalid_should_return_a_BAD_REQUEST() {
     String message = "Test validation failed";
-    Mockito.doThrow(new ValidationException(message))
+    Mockito.doThrow(new BusinessValidationException(message))
             .when(personService)
             .update(anyLong(), (CreatePersonRequest) Matchers.any());
     CreatePersonRequest request = new CreatePersonRequest();
@@ -148,7 +149,7 @@ public class PersonWebServiceTest {
     ConstraintViolation<Person> violation = createConstraintViolation(field, message);
     violations.add(violation);
 
-    Mockito.doThrow(new ConstraintViolationException(message, violations))
+    Mockito.doThrow(new BusinessConstraintViolationException(message, violations))
             .when(personService)
             .update(anyLong(), (CreatePersonRequest) Matchers.any());
 
@@ -166,17 +167,15 @@ public class PersonWebServiceTest {
             getMessageFromResponse(field, response));
   }
 
-  @Test
-  public void delete_should_return_NOT_FOUND_if_person_not_found() {
-    Response response = personWebService.delete(0L);
-    assertEquals(NOT_FOUND, response.getStatus());
+  @Test(expected = NotFoundException.class)
+  public void delete_should_throw_a_NotFoundException_if_person_not_found() {
+    personWebService.delete(0L);
   }
 
   @Test
   public void delete_should_return_OK_if_person_found() {
     when(personDao.deleteById(anyLong())).thenReturn(1);
-    Response response = personWebService.delete(0L);
-    assertEquals(OK, response.getStatus());
+    personWebService.delete(0L);
   }
 
 

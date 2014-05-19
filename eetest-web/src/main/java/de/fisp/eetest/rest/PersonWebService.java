@@ -1,33 +1,29 @@
 package de.fisp.eetest.rest;
 
-import de.fisp.eetest.service.PersonService;
 import de.fisp.eetest.dao.PersonDao;
 import de.fisp.eetest.dto.person.CreatePersonRequest;
 import de.fisp.eetest.dto.person.CreatePersonResponse;
 import de.fisp.eetest.dto.person.FindPersonsResponse;
 import de.fisp.eetest.entities.Person;
+import de.fisp.eetest.exception.handlers.RestExceptionHandler;
+import de.fisp.eetest.exceptions.BaseException;
 import de.fisp.eetest.exceptions.NotFoundException;
+import de.fisp.eetest.service.PersonService;
 import org.slf4j.Logger;
 
-import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
 import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.List;
 
-@Stateless
 @Path("/persons")
 @Produces("application/json")
-public class PersonWebService
-{
+public class PersonWebService {
   @Inject
   private PersonDao personDao;
 
@@ -54,8 +50,8 @@ public class PersonWebService
   @Path("/{id}")
   public Person findById(@PathParam("id") long id) {
     Person person = personDao.findById(id);
-    if(person == null) {
-      throw new WebApplicationException(createNotFoundResponse("Person nicht gefunden"));
+    if (person == null) {
+      throw new NotFoundException("Person nicht gefunden");
     }
     return person;
   }
@@ -68,21 +64,12 @@ public class PersonWebService
       long personId = personService.create(createPersonRequest);
       CreatePersonResponse response = new CreatePersonResponse(personId);
       return Response.ok(response).build();
-    } catch (ConstraintViolationException ce) {
-      /**
-       * Validierung über Standardvalidierung
-       */
-      return createViolationResponse(ce.getConstraintViolations());
-    } catch (ValidationException e) {
-      /**
-       * Validierung über individuelle Validierung
-       */
-      return createValidationResponse(e.getMessage());
+    } catch (BaseException ex) {
+      return ex.handle(new RestExceptionHandler());
     } catch (Exception e) {
-      /**
-       * Alle anderen Exceptions (bspw. Datenbank nicht da)
-       */
-      return createExceptionResponse(e);
+      return new RestExceptionHandler()
+              .defaultHandleException(e)
+              .getResult();
     }
   }
 
@@ -94,64 +81,23 @@ public class PersonWebService
     try {
       personService.update(id, createPersonRequest);
       return Response.ok().build();
-    }
-    catch (NotFoundException ex) {
-      return createNotFoundResponse(ex.getMessage());
-    }
-    catch (ConstraintViolationException ce) {
-      /**
-       * Validierung über Standardvalidierung
-       */
-      return createViolationResponse(ce.getConstraintViolations());
-    } catch (ValidationException e) {
-      /**
-       * Validierung über individuelle Validierung
-       */
-      return createValidationResponse(e.getMessage());
+    } catch (BaseException ex) {
+      return ex.handle(new RestExceptionHandler());
     } catch (Exception e) {
-      /**
-       * Alle anderen Exceptions (bspw. Datenbank nicht da)
-       */
-      return createExceptionResponse(e);
+      return new RestExceptionHandler()
+              .defaultHandleException(e)
+              .getResult();
     }
   }
 
   @POST
   @Path("/{id}/delete")
   @TransactionAttribute
-  public Response delete(@PathParam("id") long id) {
+  public void delete(@PathParam("id") long id) {
     int count = personDao.deleteById(id);
-    if(count == 0L) {
-      return createNotFoundResponse("Person nicht gefunden");
+    if (count == 0L) {
+      throw new NotFoundException("Person nicht gefunden");
     }
-    else
-      return Response.ok().build();
   }
 
-  private Response createViolationResponse(Set<ConstraintViolation<?>> violations) {
-    logger.info("Validation completed. violations found: " + violations.size());
-    Map<String, String> responseObj = new HashMap<String, String>();
-    for (ConstraintViolation<?> violation : violations) {
-      responseObj.put(violation.getPropertyPath().toString(), violation.getMessage());
-    }
-    return Response.status(Response.Status.BAD_REQUEST).entity(responseObj).build();
-  }
-
-  private Response createNotFoundResponse(String message) {
-    return Response.status(Response.Status.NOT_FOUND).entity(createMessage(message)).build();
-  }
-
-  private Response createValidationResponse(String message) {
-    return Response.status(Response.Status.BAD_REQUEST).entity(createMessage(message)).build();
-  }
-
-  private Response createExceptionResponse(Exception e) {
-    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(createMessage(e.getMessage())).build();
-  }
-
-  private Map<String, String> createMessage(String message) {
-    Map<String, String> result = new HashMap<>();
-    result.put("message", message);
-    return result;
-  }
 }

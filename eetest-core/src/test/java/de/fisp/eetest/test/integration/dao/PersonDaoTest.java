@@ -15,9 +15,7 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.UserTransaction;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 @RunWith(Arquillian.class)
 public class PersonDaoTest {
