@@ -5,20 +5,16 @@ import de.fisp.eetest.dto.person.CreatePersonRequest;
 import de.fisp.eetest.dto.person.CreatePersonResponse;
 import de.fisp.eetest.dto.person.FindPersonsResponse;
 import de.fisp.eetest.entities.Person;
-import de.fisp.eetest.exception.handlers.RestExceptionHandler;
-import de.fisp.eetest.exceptions.BaseException;
 import de.fisp.eetest.exceptions.NotFoundException;
 import de.fisp.eetest.service.PersonService;
 import org.slf4j.Logger;
 
-import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Path("/persons")
@@ -58,46 +54,25 @@ public class PersonWebService {
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  @TransactionAttribute
-  public Response create(CreatePersonRequest createPersonRequest) {
-    try {
-      long personId = personService.create(createPersonRequest);
-      CreatePersonResponse response = new CreatePersonResponse(personId);
-      return Response.ok(response).build();
-    } catch (BaseException ex) {
-      return ex.handle(new RestExceptionHandler());
-    } catch (Exception e) {
-      return new RestExceptionHandler()
-              .defaultHandleException(e)
-              .getResult();
-    }
+  public CreatePersonResponse create(CreatePersonRequest createPersonRequest) {
+    long personId = personService.create(createPersonRequest);
+    CreatePersonResponse response = new CreatePersonResponse(personId);
+    return response;
   }
 
   @POST
   @Path("/{id}")
   @Consumes(MediaType.APPLICATION_JSON)
-  @TransactionAttribute
-  public Response update(@PathParam("id") long id, CreatePersonRequest createPersonRequest) {
-    try {
-      personService.update(id, createPersonRequest);
-      return Response.ok().build();
-    } catch (BaseException ex) {
-      return ex.handle(new RestExceptionHandler());
-    } catch (Exception e) {
-      return new RestExceptionHandler()
-              .defaultHandleException(e)
-              .getResult();
-    }
+  public void update(@PathParam("id") long id, CreatePersonRequest createPersonRequest) {
+    personService.update(id, createPersonRequest);
   }
 
   @POST
   @Path("/{id}/delete")
-  @TransactionAttribute
   public void delete(@PathParam("id") long id) {
     int count = personDao.deleteById(id);
-    if (count == 0L) {
+    if (count == 0) {
       throw new NotFoundException("Person nicht gefunden");
     }
   }
-
 }

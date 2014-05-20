@@ -6,6 +6,8 @@ import de.fisp.eetest.test.util.deployments.PersonDeployment;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,6 +35,16 @@ public class PersonDaoTest {
   @PersistenceContext
   private EntityManager em;
 
+  @Before
+  public void before() {
+    startTransaction();
+  }
+
+  @After
+  public void after() {
+    rollbackTransaction();
+  }
+
   @Test
   public void findAll_should_return_a_list_of_persons() {
     List<Person> list = personDao.findAll();
@@ -47,49 +59,31 @@ public class PersonDaoTest {
 
   @Test
   public void findById_should_return_a_person_if_found() {
-    startTransaction();
-    try {
-      Person person = insertPerson();
-      person = personDao.findById(person.getId());
-      assertNotNull(person);
-    }
-    finally {
-      rollbackTransaction();
-    }
+    Person person = insertPerson();
+    person = personDao.findById(person.getId());
+    assertNotNull(person);
   }
 
   @Test
   public void update_should_change_the_persons_attributes() {
-    startTransaction();
-    try {
-      Person person = insertPerson();
-      final String vorname = "Neu";
-      final String nachname = "Auch neu";
-      person.setVorname(vorname);
-      person.setNachname(nachname);
-      personDao.update(person);
-      person = personDao.findById(person.getId());
-      assertEquals(vorname, person.getVorname());
-      assertEquals(nachname, person.getNachname());
-    }
-    finally {
-      rollbackTransaction();
-    }
+    Person person = insertPerson();
+    final String vorname = "Neu";
+    final String nachname = "Auch neu";
+    person.setVorname(vorname);
+    person.setNachname(nachname);
+    personDao.update(person);
+    person = personDao.findById(person.getId());
+    assertEquals(vorname, person.getVorname());
+    assertEquals(nachname, person.getNachname());
   }
 
   @Test
   public void delete_should_delete_the_person() {
-    startTransaction();
-    try {
-      Person person = insertPerson();
-      long id = person.getId();
-      personDao.deleteById(id);
-      person = personDao.findById(id);
-      assertNull(person);
-    }
-    finally {
-      rollbackTransaction();
-    }
+    Person person = insertPerson();
+    long id = person.getId();
+    personDao.deleteById(id);
+    person = personDao.findById(id);
+    assertNull(person);
   }
 
   private Person insertPerson() {
@@ -104,8 +98,7 @@ public class PersonDaoTest {
     try {
       utx.begin();
       em.joinTransaction();
-    }
-    catch(Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException("startTransaction", ex);
     }
   }
@@ -113,8 +106,7 @@ public class PersonDaoTest {
   private void rollbackTransaction() {
     try {
       utx.rollback();
-    }
-    catch(Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException("rollbackTransaction", ex);
     }
   }

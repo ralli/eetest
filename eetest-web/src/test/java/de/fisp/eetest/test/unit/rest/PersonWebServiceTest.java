@@ -21,11 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Path;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.RuntimeDelegate;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static de.fisp.eetest.test.util.TestHelper.setAttribute;
@@ -36,9 +34,6 @@ import static org.mockito.Mockito.when;
 
 public class PersonWebServiceTest {
   private static final Logger logger = LoggerFactory.getLogger(PersonWebService.class);
-  public static final int BAD_REQUEST = 400;
-  public static final int OK = 200;
-  public static final int NOT_FOUND = 404;
   private PersonDao personDao;
   private PersonService personService;
   private PersonWebService personWebService;
@@ -68,8 +63,7 @@ public class PersonWebServiceTest {
     try {
       personWebService.findById(10L);
       Assert.fail("Should throw a NotFoundException");
-    }
-    catch(NotFoundException ex) {
+    } catch (NotFoundException ex) {
       // Ok
     }
   }
@@ -82,66 +76,30 @@ public class PersonWebServiceTest {
   }
 
   @Test
-  public void create_when_successful_should_return_OK() {
+  public void create_when_successful_should_return_a_CreatePersonResponse() {
     final long id = 10L;
     when(personService.create((CreatePersonRequest) Matchers.any())).thenReturn(id);
     CreatePersonRequest request = new CreatePersonRequest();
-    Response response = personWebService.create(request);
-    assertEquals(OK, response.getStatus());
-    Assert.assertTrue("Must be a CreatePersonResponse", response.getEntity() instanceof CreatePersonResponse);
-    assertEquals("Must contain the Persons ID", id, ((CreatePersonResponse) response.getEntity()).getId());
+    CreatePersonResponse response = personWebService.create(request);
+    assertEquals("Must contain the Persons ID", id, response.getId());
   }
 
-  @Test
-  public void create_when_invalid_should_return_a_BAD_REQUEST() {
+  @Test(expected = BusinessValidationException.class)
+  public void create_when_invalid_should_throw_a_BusinessValidationException() {
     String message = "Test validation failed";
     when(personService.create((CreatePersonRequest) Matchers.any())).thenThrow(new BusinessValidationException(message));
     CreatePersonRequest request = new CreatePersonRequest();
-    Response response = personWebService.create(request);
-
-    assertBadRequestResponse(message, "message", response);
+    personWebService.create(request);
   }
 
   @Test
-  public void create_when_validation_errors_occur_should_return_a_BAD_REQUEST() {
-    final String message = "Test validation failed";
-    final String field = "firstName";
-
-    Set<ConstraintViolation<?>> violations = new HashSet<>();
-    ConstraintViolation<Person> violation = createConstraintViolation(field, message);
-    violations.add(violation);
-
-    when(personService.create((CreatePersonRequest) Matchers.any()))
-            .thenThrow(new BusinessConstraintViolationException(message, violations));
-
+  public void update_when_successful_should_not_throw_exceptions() {
     CreatePersonRequest request = new CreatePersonRequest();
-    Response response = personWebService.create(request);
-
-    assertBadRequestResponse(message, field, response);
+    personWebService.update(0L, request);
   }
 
-  @Test
-  public void update_when_successful_should_return_OK() {
-    CreatePersonRequest request = new CreatePersonRequest();
-    Response response = personWebService.update(0L, request);
-    assertEquals(OK, response.getStatus());
-  }
-
-  @Test
-  public void update_when_invalid_should_return_a_BAD_REQUEST() {
-    String message = "Test validation failed";
-    Mockito.doThrow(new BusinessValidationException(message))
-            .when(personService)
-            .update(anyLong(), (CreatePersonRequest) Matchers.any());
-    CreatePersonRequest request = new CreatePersonRequest();
-    Response response = personWebService.update(0L, request);
-
-    assertBadRequestResponse(message, "message", response);
-  }
-
-
-  @Test
-  public void update_when_validation_errors_occur_should_return_a_BAD_REQUEST() {
+  @Test(expected = BusinessConstraintViolationException.class)
+  public void update_when_validation_errors_occur_should_return_a_BusinessConstraintViolationException() {
     final String message = "Test validation failed";
     final String field = "firstName";
 
@@ -154,17 +112,7 @@ public class PersonWebServiceTest {
             .update(anyLong(), (CreatePersonRequest) Matchers.any());
 
     CreatePersonRequest request = new CreatePersonRequest();
-    Response response = personWebService.update(0L, request);
-
-    assertBadRequestResponse(message, field, response);
-  }
-
-  private void assertBadRequestResponse(String message, String field, Response response) {
-    assertEquals(BAD_REQUEST, response.getStatus());
-    Assert.assertTrue("Must be a Map", response.getEntity() instanceof Map<?, ?>);
-    assertEquals("Contain the validation message for the field",
-            message,
-            getMessageFromResponse(field, response));
+    personWebService.update(0L, request);
   }
 
   @Test(expected = NotFoundException.class)
@@ -187,10 +135,5 @@ public class PersonWebServiceTest {
     when(violation.getPropertyPath()).thenReturn(path);
     when(violation.getMessage()).thenReturn(message);
     return violation;
-  }
-
-  @SuppressWarnings("unchecked")
-  private String getMessageFromResponse(String field, Response response) {
-    return ((Map<String, String>) response.getEntity()).get(field);
   }
 }
