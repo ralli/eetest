@@ -6,18 +6,17 @@ import de.fisp.eetest.entities.Person;
 import de.fisp.eetest.exceptions.BusinessConstraintViolationException;
 import de.fisp.eetest.exceptions.BusinessValidationException;
 import de.fisp.eetest.exceptions.NotFoundException;
+import org.apache.deltaspike.jpa.api.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.HashSet;
 import java.util.Set;
 
-@Stateless
+
 public class PersonService {
   @Inject
   private PersonDao personDao;
@@ -34,7 +33,7 @@ public class PersonService {
    * @return Die ID der angelegten Person
    * @throws BusinessValidationException wenn die Person nicht valide ist.
    */
-  @TransactionAttribute
+  @Transactional
   public long create(CreatePersonRequest createPersonRequest) throws BusinessValidationException {
     log.info("create({})", createPersonRequest);
     validatePerson(createPersonRequest);
@@ -50,7 +49,7 @@ public class PersonService {
    * @return Die ID der angelegten Person
    * @throws BusinessValidationException wenn die Persion nicht valide ist.
    */
-  @TransactionAttribute
+  @Transactional
   public void update(long id, CreatePersonRequest createPersonRequest) throws BusinessValidationException, NotFoundException {
     log.info("update({}, {})", id, createPersonRequest);
     validatePerson(createPersonRequest);

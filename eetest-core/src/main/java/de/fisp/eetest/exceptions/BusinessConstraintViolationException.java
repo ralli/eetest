@@ -2,7 +2,6 @@ package de.fisp.eetest.exceptions;
 
 import de.fisp.eetest.exceptions.handler.BaseExceptionHandler;
 
-import javax.ejb.ApplicationException;
 import javax.validation.ConstraintViolation;
 import java.util.Set;
 
@@ -23,7 +22,6 @@ import java.util.Set;
  *     throw new BusinessConstraintViolationException(violations)
  * </code>
  */
-@ApplicationException(rollback=true)
 public class BusinessConstraintViolationException extends BusinessValidationException {
   private final Set<ConstraintViolation<?>> constraintViolations;
 

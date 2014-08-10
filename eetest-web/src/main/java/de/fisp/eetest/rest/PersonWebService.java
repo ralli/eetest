@@ -10,9 +10,6 @@ import de.fisp.eetest.service.PersonService;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.validation.Validator;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -28,12 +25,6 @@ public class PersonWebService {
 
   @Inject
   private Logger logger;
-
-  @Inject
-  private Validator validator;
-
-  @PersistenceContext
-  private EntityManager em;
 
   @GET
   public FindPersonsResponse findAll() {

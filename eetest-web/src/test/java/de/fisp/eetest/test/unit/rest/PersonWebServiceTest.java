@@ -57,15 +57,10 @@ public class PersonWebServiceTest {
     Assert.assertTrue("Soll leer sein", result.getPersons().isEmpty());
   }
 
-  @Test
+  @Test(expected = NotFoundException.class)
   public void findById_should_throw_a_NotFoundException_if_person_not_found() {
     when(personDao.findById(anyLong())).thenReturn(null);
-    try {
-      personWebService.findById(10L);
-      Assert.fail("Should throw a NotFoundException");
-    } catch (NotFoundException ex) {
-      // Ok
-    }
+    personWebService.findById(10L);
   }
 
   @Test

@@ -1,5 +1,9 @@
 package de.fisp.eetest.test.util;
 
+import javax.enterprise.inject.Produces;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.lang.reflect.Field;
 
 public class TestHelper {

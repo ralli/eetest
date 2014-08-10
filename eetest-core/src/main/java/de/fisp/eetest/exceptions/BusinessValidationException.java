@@ -2,7 +2,6 @@ package de.fisp.eetest.exceptions;
 
 import de.fisp.eetest.exceptions.handler.BaseExceptionHandler;
 
-import javax.ejb.ApplicationException;
 
 /**
  * Diese Exception wird bei allgemeinen Validierungsfehlern geworfen.
@@ -12,7 +11,6 @@ import javax.ejb.ApplicationException;
  *      throw new BusinessValidationException("Email address is not reachable");
  * </code>
  */
-@ApplicationException(rollback=true)
 public class BusinessValidationException extends BaseException {
   public BusinessValidationException() {
   }

@@ -21,7 +21,6 @@ public class CreatePersonRequest {
   }
 
   public String getVorname() {
-
     return vorname;
   }
 
